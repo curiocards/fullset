@@ -48,7 +48,8 @@ resource "aws_iam_role" "curio_fullset_lambda_execution_role" {
       "Effect": "Allow",
       "Principal": {
         "Service": [
-          "lambda.amazonaws.com"
+          "lambda.amazonaws.com",
+          "events.amazonaws.com"
         ]
       },
       "Action": "sts:AssumeRole"
