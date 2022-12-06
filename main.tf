@@ -2,7 +2,7 @@
 resource "aws_lambda_function" "generate_fullset" {
   filename         = "lambda/lambda_function.zip"
   function_name    = "generate_fullset"
-  role             = "${aws_iam_role.curio_fullset_lambda_execution_role.arn}"
+  role             = aws_iam_role.curio_fullset_lambda_execution_role.arn
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   timeout          = 30
@@ -14,10 +14,19 @@ resource "aws_lambda_function" "generate_fullset" {
   }
 }
 
+resource "aws_lambda_permission" "allow_cloudwatch_event_rule" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.generate_fullset.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.curio_fullset_cronjob.arn
+}
+
 # Create a CloudWatch event rule that triggers every 15 minutes
 resource "aws_cloudwatch_event_rule" "curio_fullset_cronjob" {
   name        = "curio_fullset_cronjob"
   schedule_expression    = "rate(15 minutes)"
+  role_arn = aws_iam_role.curio_fullset_lambda_execution_role.arn
 }
 
 # Create a CloudWatch event target that points to the Lambda function
@@ -38,7 +47,9 @@ resource "aws_iam_role" "curio_fullset_lambda_execution_role" {
     {
       "Effect": "Allow",
       "Principal": {
-        "Service": "lambda.amazonaws.com"
+        "Service": [
+          "lambda.amazonaws.com"
+        ]
       },
       "Action": "sts:AssumeRole"
     }
