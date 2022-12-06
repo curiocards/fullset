@@ -1,2 +1,6 @@
 .DS_Store
 index.html
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
