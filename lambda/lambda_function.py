@@ -65,11 +65,10 @@ def lambda_handler(event, context):
     #with open("index.html", "w") as file:
     #    file.write(html)
 
+    # Write the bytes object to the S3 bucket
     output = BytesIO()
     output.write(html.encode("utf-8"))
     output.seek(0)
-
-    # Write the bytes object to the S3 bucket
     s3.put_object(
         Bucket="fullset.curio.cards",
         Key="index.html",
